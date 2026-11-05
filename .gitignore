@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.pnp
+.pnp.*
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+.figma
+# Build output
+dist/
+build/
+.cache/
+*.tsbuildinfo
+
+# Testing
+coverage/
+
+# Environment (keep the example file)
+.env
+.env.*
+!.env.example
+
+# Deployment
+.vercel/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+
+# Secrets
+*.pem
+
+# Tooling scratch
+.claude-replay.*
+.tmp-*
+/.figma/design-context/
+
+# Platform-managed agentplat state, not project source. In the
+# client-initiated single-repo workspace layout (make's `Path: "."` spec) the
+# repo root IS the workspace root, so these land inside this repo rather than
+# beside it.
+/.plugins/
+/.opencode-skills/
