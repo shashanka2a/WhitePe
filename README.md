@@ -6,22 +6,17 @@ WhitePe is a crypto payment gateway that lets customers pay at any UPI merchant 
 
 ---
 
-## Why on-chain stablecoin settlement?
+## Why On-Chain Settlement on Whitechain?
 
-Traditional payment rails (UPI, card networks, SWIFT) lock merchants into 24–72 hour settlement windows, charge 1.5–3% processing fees, expose both sides to chargeback risk, and have no natively machine-readable audit trail.
+Traditional payment rails (card networks, wire transfers, legacy payment aggregators) have fundamental flaws for modern commerce:
 
-WhitePe settles in **USDT on Whitechain** because:
+- **Settlement Speed**: Legacy rails take 24 to 72 hours for funds to clear. Whitechain provides sub-second transaction finality, meaning merchants receive their settled funds immediately.
+- **Zero Volatility**: Settling directly in USDT ensures merchants receive exact 1:1 dollar value without currency fluctuation or conversion fees.
+- **No Chargeback Fraud**: Card networks permit reversals up to 120 days post-transaction. On-chain transfers are irreversible, eliminating chargeback fraud entirely.
+- **Cryptographic Receipts**: Every settlement generates an on-chain event. Arkiv indexes these events into cryptographic, tamper-evident receipts that merchants, customers, and auditors can verify independently without trusting an opaque centralized database.
+- **Micro-Fees**: Whitechain transaction gas costs are fractions of a cent, avoiding the 1.5% to 3.5% processing fees charged by traditional card networks.
 
-| Problem with legacy rails | How on-chain stablecoin settlement solves it |
-|---|---|
-| **Settlement delay** — funds arrive T+1 to T+3 | USDT transfer on Whitechain confirms in < 1 second; merchant has final funds immediately |
-| **FX & volatility risk** — cross-border payments lose value between capture and settlement | USDT is a dollar-pegged stablecoin; 1 USDT in = 1 USDT out, no conversion spread |
-| **Chargebacks** — card networks allow 120-day reversals that cost the merchant | On-chain transfers are final; there is no chargeback mechanism in the protocol |
-| **Opaque reconciliation** — merchants reconcile against bank statements days later | Every settlement emits an on-chain event with invoice ID, amount, payer, and timestamp; Arkiv indexes these into a queryable, tamper-evident receipt store |
-| **No programmability** — traditional rails can't trigger downstream logic on settlement | A smart contract can enforce invoice validation, prevent duplicate payments, and emit structured events that integrations can consume in real time |
-| **High fees on small cross-border transfers** — SWIFT costs \$15–\$45 per wire | Whitechain gas fees are fractions of a cent per transaction |
-
-A backend database could track payments, but it can't _prove_ that a specific USDT transfer happened at a specific time to a specific address — and it can't do so in a way that the merchant, the customer, and a third-party auditor can independently verify without trusting WhitePe's server. The blockchain is the settlement layer; Arkiv is the receipt layer. Together they replace the trust model, not just the payment speed.
+A centralized database can track numbers, but it cannot prove that a specific transfer occurred at a specific timestamp to a specific address without requiring all parties to trust the server operator. The blockchain acts as the settlement layer, and Arkiv acts as the verifiable receipt layer.
 
 ---
 
@@ -30,41 +25,41 @@ A backend database could track payments, but it can't _prove_ that a specific US
 ```
 Customer (any chain)
        │
-       │  Pays with ETH / USDC / WBT / any supported token
+       │  Pays with ETH, USDC, WBT, or any supported token
        ▼
 ┌─────────────────────┐
-│  WhitePe Frontend   │  Next.js app — consumer checkout + merchant portal
+│  WhitePe Frontend   │  Next.js app (consumer checkout and merchant portal)
 │  (src/)             │
 └────────┬────────────┘
          │
          ▼
 ┌─────────────────────┐
-│  WhitePe Backend    │  Routing engine — selects bridge + DEX path
-│  (planned)          │  Monitors source-chain tx → triggers settlement
+│  WhitePe Backend    │  Routing engine: selects bridge and DEX path
+│  (orchestration)    │  Monitors source-chain tx and triggers settlement
 └────────┬────────────┘
          │
          ▼
 ┌─────────────────────┐
-│  Bridge / Solver    │  Existing infra (Whitechain bridge, cross-chain solvers)
-│  (not ours)         │  Locks/burns source token → mints/releases on Whitechain
+│  Bridge / Solver    │  Existing cross-chain infrastructure
+│  (protocol routes)  │  Locks/burns source token, releases on Whitechain
 └────────┬────────────┘
          │
          ▼
 ┌─────────────────────┐
-│  DEX Router         │  Existing Whitechain DEX
-│  (not ours)         │  Swaps received asset → USDT
+│  DEX Router         │  Whitechain automated market maker
+│  (protocol routes)  │  Swaps received token to USDT
 └────────┬────────────┘
          │
          ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Whitechain (chain ID 1874 testnet)                     │
+│  Whitechain (Chain ID 1874 Testnet)                     │
 │                                                         │
 │  ┌─────────────────────────┐  ┌──────────────────────┐  │
 │  │ WhitePeSettlement.sol   │  │ WhitePeInvoiceRegistry│  │
-│  │ • Receives USDT         │  │ • Creates invoices    │  │
-│  │ • Forwards to merchant  │  │ • Marks paid on settle│  │
-│  │ • Emits PaymentSettled  │  │ • On-chain status     │  │
-│  │ • Prevents duplicates   │  │ • Queryable by Arkiv  │  │
+│  │ * Receives USDT         │  │ * Creates invoices    │  │
+│  │ * Forwards to merchant  │  │ * Marks paid on settle│  │
+│  │ * Emits PaymentSettled  │  │ * On-chain status     │  │
+│  │ * Prevents duplicates   │  │ * Queryable by Arkiv  │  │
 │  └─────────────────────────┘  └──────────────────────┘  │
 │                                                         │
 │  USDT ──────────────────────► Merchant Wallet            │
@@ -77,106 +72,115 @@ Customer (any chain)
 └─────────────────────┘
 ```
 
-### Smart contract design
+---
 
-The contracts are intentionally minimal. WhitePe's value is the routing engine, conversion, and merchant experience — not another bridge protocol.
+## Smart Contract Overview
 
-| Contract | Build ourselves? | Purpose |
+WhitePe keeps its smart contract footprint minimal:
+
+| Contract | Location | Purpose |
 |---|---|---|
-| Bridge contracts | No | Use existing Whitechain / third-party bridge infra |
-| DEX swap contracts | No | Use existing DEX on Whitechain |
-| **WhitePeSettlement** | **Yes** | Receives USDT, forwards to merchant, emits settlement events |
-| **WhitePeInvoiceRegistry** | **Yes** | On-chain invoice tracking, duplicate prevention, audit trail |
-
-See [`contracts/`](./contracts/) for source code, tests, and deploy scripts.
+| **WhitePeSettlement** | `contracts/src/WhitePeSettlement.sol` | Receives USDT from payer, forwards to merchant wallet, and emits `PaymentSettled` events while preventing duplicate settlements. |
+| **WhitePeInvoiceRegistry** | `contracts/src/WhitePeInvoiceRegistry.sol` | Records invoices on-chain with expiry, status, and payer information for public auditability. |
+| **MockUSDT** | `contracts/src/MockUSDT.sol` | ERC-20 token (6 decimals) for Whitechain Sepolia testnet testing and verification. |
+| **IERC20** | `contracts/src/IERC20.sol` | Minimal standalone ERC-20 interface without external dependencies. |
 
 ---
 
-## Project structure
+## Smart Contract Deployment Guide
 
-```
-WhitePe/
-├── src/                          # Next.js frontend
-│   ├── app/                      # App router pages
-│   │   ├── page.tsx              # Landing page
-│   │   ├── app/page.tsx          # Consumer checkout UI
-│   │   └── merchant/page.tsx     # Merchant dashboard UI
-│   ├── components/
-│   │   ├── landing/              # Landing page components
-│   │   └── ui/                   # Shared UI (crypto icons, etc.)
-│   ├── features/
-│   │   ├── user/UserApp.tsx      # Consumer payment flow
-│   │   └── merchant/MerchantApp.tsx  # Merchant portal
-│   └── lib/                      # Utilities
-├── contracts/                    # Foundry smart contracts
-│   ├── src/
-│   │   ├── WhitePeSettlement.sol       # Payment settlement
-│   │   ├── WhitePeInvoiceRegistry.sol  # Invoice registry
-│   │   └── IERC20.sol                  # Token interface
-│   ├── test/                     # Forge tests
-│   ├── script/                   # Deploy scripts
-│   └── foundry.toml
-├── public/brands/                # Official brand assets
-└── package.json
-```
+Contracts are configured for **Whitechain Sepolia** (Chain ID `1874`).
 
----
+### Network Details
 
-## Setup
+| Parameter | Value |
+|---|---|
+| Network Name | Whitechain Sepolia |
+| Chain ID | `1874` |
+| RPC URL | `https://rpc.testnet.whitechain.io` |
+| Explorer | `https://explorer.testnet.whitechain.io` |
+| Blockscout API | `https://explorer.testnet.whitechain.io/api/` |
+| Gas Currency | WBT |
+| Testnet Faucet | `https://faucet.testnet.whitechain.io` |
 
-### Prerequisites
+### Step 1: Install Foundry
 
-- [Node.js](https://nodejs.org/) ≥ 20.9
-- [pnpm](https://pnpm.io/) ≥ 9
-- [Foundry](https://book.getfoundry.sh/getting-started/installation) (for smart contracts)
-
-### Frontend
+If you do not have Foundry installed:
 
 ```bash
-# Clone the repo
-git clone https://github.com/<your-username>/WhitePe.git
-cd WhitePe
-
-# Install dependencies
-pnpm install
-
-# Start dev server
-pnpm dev
-
-# Build for production
-pnpm build
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
 ```
 
-Open [http://localhost:3000](http://localhost:3000) for the landing page, `/app` for the consumer checkout, and `/merchant` for the merchant portal.
+### Step 2: Set Up Deployer Wallet
 
-### Smart contracts
+Import your deployer private key into Foundry's encrypted keystore (do not paste raw keys into chat or commit them):
+
+```bash
+cast wallet import deployer --interactive
+```
+
+Verify your address and balance:
+
+```bash
+cast wallet address --account deployer
+```
+
+### Step 3: Fund Your Account
+
+Claim testnet WBT for deployment gas at [faucet.testnet.whitechain.io](https://faucet.testnet.whitechain.io). Each claim provides 0.5 WBT per rolling 24-hour window.
+
+Confirm your balance on Whitechain Sepolia:
+
+```bash
+cast balance <YOUR_WALLET_ADDRESS> --rpc-url https://rpc.testnet.whitechain.io
+```
+
+### Step 4: Build and Test Contracts
+
+Navigate to the `contracts/` directory:
 
 ```bash
 cd contracts
-
-# Install Foundry (if not already installed)
-curl -L https://foundry.paradigm.xyz | bash
-foundryup
-
-# Build contracts
 forge build
-
-# Run tests
 forge test -vvv
 ```
 
-### Deploy to Whitechain Sepolia
+### Step 5: Deploy to Whitechain Sepolia
 
-1. **Import your deployer key** (run in your terminal, not in an AI chat):
+#### Option A: Deploy All Contracts with Mock USDT (Recommended for Testnet)
+
+This script deploys `MockUSDT` (1,000,000 tokens), `WhitePeSettlement`, and `WhitePeInvoiceRegistry`, then wires the contracts together in a single transaction sequence:
+
+```bash
+forge script script/Deploy.s.sol:DeployWithMockUSDT \
+  --rpc-url https://rpc.testnet.whitechain.io \
+  --account deployer \
+  --broadcast \
+  --verify \
+  --verifier blockscout \
+  --verifier-url https://explorer.testnet.whitechain.io/api/
+```
+
+#### Option B: Deploy Using an Existing USDT Address
+
+If you already have a USDT token address on Whitechain Sepolia:
+
+```bash
+USDT_ADDRESS=0x<YOUR_USDT_ADDRESS> forge script script/Deploy.s.sol:Deploy \
+  --rpc-url https://rpc.testnet.whitechain.io \
+  --account deployer \
+  --broadcast \
+  --verify \
+  --verifier blockscout \
+  --verifier-url https://explorer.testnet.whitechain.io/api/
+```
+
+#### Option C: Step-by-Step Deployment via `forge create`
+
+1. **Deploy WhitePeInvoiceRegistry**:
    ```bash
-   cast wallet import deployer --interactive
-   ```
-
-2. **Get testnet WBT** from [faucet.testnet.whitechain.io](https://faucet.testnet.whitechain.io) (requires GitHub OAuth, 0.5 WBT per 24h).
-
-3. **Deploy**:
-   ```bash
-   forge script script/Deploy.s.sol:DeployWhitePe \
+   forge create src/WhitePeInvoiceRegistry.sol:WhitePeInvoiceRegistry \
      --rpc-url https://rpc.testnet.whitechain.io \
      --account deployer \
      --broadcast \
@@ -185,121 +189,120 @@ forge test -vvv
      --verifier-url https://explorer.testnet.whitechain.io/api/
    ```
 
-4. **Verify** (if `--verify` failed during deploy):
+2. **Deploy WhitePeSettlement** (passing the USDT address as constructor arg at the very end):
    ```bash
-   forge verify-contract <CONTRACT_ADDRESS> src/WhitePeSettlement.sol:WhitePeSettlement \
+   forge create src/WhitePeSettlement.sol:WhitePeSettlement \
+     --rpc-url https://rpc.testnet.whitechain.io \
+     --account deployer \
+     --broadcast \
+     --verify \
      --verifier blockscout \
      --verifier-url https://explorer.testnet.whitechain.io/api/ \
-     --chain 1874
+     --constructor-args 0x<USDT_ADDRESS>
    ```
 
-### Environment variables
+3. **Wire Registry Permission**:
+   ```bash
+   cast send 0x<REGISTRY_ADDRESS> "setSettlementContract(address)" 0x<SETTLEMENT_ADDRESS> \
+     --rpc-url https://rpc.testnet.whitechain.io \
+     --account deployer
+   ```
 
-Copy `.env.example` to `.env` and configure:
+### Step 6: Verify on Blockscout Explorer
+
+If automatic verification was skipped or failed during broadcast, verify manually:
 
 ```bash
-cp .env.example .env
+# Verify WhitePeSettlement
+forge verify-contract 0x<SETTLEMENT_ADDRESS> src/WhitePeSettlement.sol:WhitePeSettlement \
+  --verifier blockscout \
+  --verifier-url https://explorer.testnet.whitechain.io/api/ \
+  --chain 1874 \
+  --constructor-args $(cast abi-encode "constructor(address)" 0x<USDT_ADDRESS>)
+
+# Verify WhitePeInvoiceRegistry
+forge verify-contract 0x<REGISTRY_ADDRESS> src/WhitePeInvoiceRegistry.sol:WhitePeInvoiceRegistry \
+  --verifier blockscout \
+  --verifier-url https://explorer.testnet.whitechain.io/api/ \
+  --chain 1874
 ```
 
-| Variable | Description |
-|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Public URL of the deployed frontend |
-
 ---
 
-## Whitechain Sepolia network
+## Deployed Contracts (Whitechain Sepolia)
 
-| Property | Value |
-|---|---|
-| Network name | Whitechain Sepolia |
-| Chain ID | `1874` |
-| RPC | `https://rpc.testnet.whitechain.io` |
-| WebSocket | `wss://rpc.testnet.whitechain.io/ws` |
-| Explorer | [explorer.testnet.whitechain.io](https://explorer.testnet.whitechain.io) |
-| Native token | WBT |
-| Faucet | [faucet.testnet.whitechain.io](https://faucet.testnet.whitechain.io) |
+Update these values upon deployment:
 
-Add to MetaMask in one click: [Chainlist → Whitechain Sepolia](https://chainlist.org/?search=Whitechain+Sepolia&testnets=true)
-
----
-
-## Deployed contracts (Whitechain Sepolia)
-
-> Contracts will be deployed and addresses updated here after testnet deployment.
-
-| Contract | Address | Explorer |
+| Contract | Address | Explorer Link |
 |---|---|---|
-| WhitePeSettlement | `TBD` | [View on explorer](#) |
-| WhitePeInvoiceRegistry | `TBD` | [View on explorer](#) |
+| WhitePeSettlement | `Pending Deployment` | [View on Explorer](https://explorer.testnet.whitechain.io) |
+| WhitePeInvoiceRegistry | `Pending Deployment` | [View on Explorer](https://explorer.testnet.whitechain.io) |
+| MockUSDT | `Pending Deployment` | [View on Explorer](https://explorer.testnet.whitechain.io) |
 
 ---
 
-## Transaction flow
+## Frontend Setup
 
-A customer pays USDC on Ethereum for a ₹149 coffee:
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (version 20.9 or later)
+- [pnpm](https://pnpm.io/) (version 9 or later)
+
+### Running Locally
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
+
+# Build for production
+pnpm build
+```
+
+- Landing Page: `http://localhost:3000`
+- Consumer Checkout: `http://localhost:3000/app`
+- Merchant Portal: `http://localhost:3000/merchant`
+
+---
+
+## Project Structure
 
 ```
-1. Customer approves USDC on Ethereum
-2. Bridge/solver locks USDC, releases equivalent on Whitechain
-3. DEX swaps received token → USDT on Whitechain
-4. WhitePeSettlement.settle() receives USDT
-   ├── Validates invoice hasn't been settled before
-   ├── Transfers USDT to merchant wallet
-   ├── Marks invoice as paid in WhitePeInvoiceRegistry
-   └── Emits PaymentSettled event
-5. Arkiv indexes the event → tamper-proof receipt
-6. WhitePe backend confirms settlement to both parties
+WhitePe/
+├── contracts/                    # Foundry smart contracts
+│   ├── script/
+│   │   └── Deploy.s.sol          # Deployment script
+│   ├── src/
+│   │   ├── IERC20.sol            # ERC-20 interface
+│   │   ├── MockUSDT.sol          # Testnet USDT token
+│   │   ├── WhitePeInvoiceRegistry.sol
+│   │   └── WhitePeSettlement.sol
+│   ├── test/
+│   │   └── WhitePeSettlement.t.sol
+│   └── foundry.toml              # Whitechain network and compiler settings
+├── src/                          # Next.js frontend application
+│   ├── app/                      # Next.js app router routes
+│   │   ├── app/                  # Consumer checkout application
+│   │   ├── merchant/             # Merchant administration portal
+│   │   └── page.tsx              # Landing page
+│   ├── components/               # UI and landing page components
+│   └── features/                 # Merchant and user workflows
+├── public/brands/                # Official Whitechain and Arkiv brand assets
+└── package.json
 ```
 
-The exact route (which bridge, which DEX) is chosen by the backend routing engine based on liquidity, fees, and speed. The on-chain contracts only handle the final settlement step.
-
 ---
 
-## Current limitations
+## Current Status and Limitations
 
-> [!IMPORTANT]
-> This is a hackathon prototype — not production software.
-
-- **No live bridge integration** — the cross-chain routing engine is mocked; actual bridge calls are not yet wired
-- **No real USDT** — testnet uses a mock ERC-20 token, not actual Tether
-- **Backend not implemented** — settlement monitoring, route selection, and merchant APIs are planned but not built
-- **Single-chain settlement only** — MVP settles on Whitechain Sepolia; multi-chain destination support is future work
-- **No wallet connection** — the frontend demos the UX flow but does not connect to MetaMask or WalletConnect yet
-- **Testnet only** — all contracts are on Whitechain Sepolia (chain ID 1874); do not use with real funds
-- **Faucet limits** — testnet WBT is limited to 0.5 per 24h rolling window
-- **No formal audit** — contracts are minimal but have not been audited
-
----
-
-## Tech stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js 16, React 19, TypeScript |
-| Styling | Tailwind CSS 4, vanilla CSS |
-| Smart contracts | Solidity 0.8.28, Foundry |
-| Settlement chain | Whitechain (EVM L1/L2) |
-| Receipt storage | Arkiv (Web3 Database) |
-| Stablecoin | USDT on Whitechain |
-
----
-
-## Contributing
-
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feat/my-feature`)
-3. Commit with clear messages (`git commit -m "feat: add merchant registration"`)
-4. Push and open a PR
+- **Testnet Deployment**: All smart contracts and transactions currently target Whitechain Sepolia (Chain ID `1874`).
+- **Faucet Limits**: Testnet WBT for deployment gas is subject to faucet limits of 0.5 WBT per rolling 24-hour window.
+- **Contract Verification**: Contracts are compiled with Solidity 0.8.28 and verifiable publicly on the Whitechain Blockscout explorer.
 
 ---
 
 ## License
 
 MIT
-
----
-
-<p align="center">
-  Built for the Whitechain ecosystem · Settled in USDT · Receipts on Arkiv
-</p>
-
