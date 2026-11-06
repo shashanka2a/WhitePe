@@ -43,6 +43,12 @@ Thumbs.db
 # Secrets
 *.pem
 
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/lib/
+contracts/broadcast/
+
 # Tooling scratch
 .claude-replay.*
 .tmp-*
