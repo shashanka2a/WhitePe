@@ -209,269 +209,268 @@ export default function HomePage() {
                     Every transaction generates a cryptographic proof permanently archived on the decentralized Archiv data layer.
                   </p>
                 </div>
-                      <div className="bento-visual archiv-proof-visual">
-                        <div className="proof-card-box">
-                          <div className="proof-card-header">
-                            <ShieldCheck size={28} className="proof-shield-icon" />
-                            <div className="proof-id-meta">
-                              <span className="proof-kicker-label">ARCHIV PROOF ID</span>
-                              <code className="proof-code-val">arc_0x8f29c0a10b42</code>
-                            </div>
-                          </div>
-                            <div className="proof-status-row">
-                              <span className="proof-live-dot" />
-                              <span>Immutable &amp; Tamper-Proof</span>
-                            </div>
-                          </div>
-                        </div>
-                      </article>
-
-                      {/* Bento Card 3: Wide Card across bottom */}
-                      <article className="bento-card bento-card-wide">
-                        <div className="bento-wide-copy">
-                          <h3>Fast &amp; Frictionless Checkout</h3>
-                          <p>
-                            Provide your shoppers with a native, one-click payment experience. Settlements complete in under 0.8s directly into USDT on Whitechain with permanent receipts on Archiv.
-                          </p>
-                          <div className="bento-pills-row">
-                            <span className="bento-micro-pill">
-                              <span className="pill-dot green" /> 0.8s Latency
-                            </span>
-                            <span className="bento-micro-pill">
-                              <span className="pill-dot purple" /> Zero Volatility
-                            </span>
-                            <span className="bento-micro-pill">
-                              <span className="pill-dot blue" /> Archiv Verified
-                            </span>
-                          </div>
-                        </div>
-                        <div className="bento-visual settlement-visual-card">
-                          <div className="settle-notice">
-                            <span className="settle-check">✓</span>
-                            <div>
-                              <strong>+149.00 USDT Received</strong>
-                              <small>Settled on Whitechain · Verified on Archiv</small>
-                            </div>
-                          </div>
-                          <div className="mini-receipt-details">
-                            <div className="receipt-line">
-                              <span>Order WP-84231</span>
-                              <span>Customer: 7.64 WBT</span>
-                            </div>
-                            <div className="receipt-line">
-                              <span>Proof ID</span>
-                              <code>arc_0x92bca710</code>
-                            </div>
-                          </div>
-                        </div>
-                      </article>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Section 5: Split Comparison (Shop Owners vs Shoppers) */}
-                <section className="section split-comparison-section" id="merchants">
-                  <div className="container split-grid">
-                    {/* Left Card: Shop Owners */}
-                    <div className="split-card merchant-card">
-                      <span className="split-kicker">FOR SHOP OWNERS</span>
-                      <h3 className="split-title">Trusted by Shop Owners</h3>
-                      <ul className="split-checklist">
-                        <li>
-                          <span className="checklist-bullet-badge">
-                            <Check size={12} />
-                          </span>
-                          <span>Zero chargebacks &amp; complete fraud immunity</span>
-                        </li>
-                        <li>
-                          <span className="checklist-bullet-badge">
-                            <Check size={12} />
-                          </span>
-                          <span>Direct USDT settlement on Whitechain into your self-custody wallet</span>
-                        </li>
-                        <li>
-                          <span className="checklist-bullet-badge">
-                            <Check size={12} />
-                          </span>
-                          <span>Link existing merchant UPI QR or checkout in under 60 seconds</span>
-                        </li>
-                        <li>
-                          <span className="checklist-bullet-badge">
-                            <Check size={12} />
-                          </span>
-                          <span>Permanent tax-compliant &amp; verifiable receipts on Archiv</span>
-                        </li>
-                      </ul>
-                      <div className="split-cta">
-                        <Link className="btn-dark-pill" href="/merchant">
-                          Join as Merchant →
-                        </Link>
-                      </div>
-
-                      {/* Merchant POS Preview Thumbnail */}
-                      <div className="split-preview-box">
-                        <div className="mini-pos-head">
-                          <span className="avatar-pill">BC</span>
-                          <div>
-                            <strong>Bombay Coffee Co.</strong>
-                            <small>Active Merchant · Whitechain</small>
-                          </div>
-                          <span className="active-tag">Active</span>
-                        </div>
-                        <div className="mini-preview-bottom">
-                          <div className="mini-pos-kpi">
-                            <span>Today&apos;s USDT Settlements</span>
-                            <strong>$1,842.50 <small>USDT</small></strong>
-                          </div>
-                          <div className="mini-db-tag">
-                            <ArchivIcon size={14} />
-                            <span>Archiv Synced</span>
-                          </div>
-                        </div>
+                <div className="bento-visual archiv-proof-visual">
+                  <div className="proof-card-box">
+                    <div className="proof-card-header">
+                      <ShieldCheck size={28} className="proof-shield-icon" />
+                      <div className="proof-id-meta">
+                        <span className="proof-kicker-label">ARCHIV PROOF ID</span>
+                        <code className="proof-code-val">arc_0x8f29c0a10b42</code>
                       </div>
                     </div>
-
-                    {/* Right Card: Shoppers */}
-                    <div className="split-card shopper-card" id="shoppers">
-                      <span className="split-kicker shopper">FOR SHOPPERS</span>
-                      <h3 className="split-title">Shoppers&apos; Choice</h3>
-                      <ul className="split-checklist">
-                        <li>
-                          <span className="checklist-bullet-badge">
-                            <Check size={12} />
-                          </span>
-                          <span>Scan any UPI QR or checkout with the crypto you already hold</span>
-                        </li>
-                        <li>
-                          <span className="checklist-bullet-badge">
-                            <Check size={12} />
-                          </span>
-                          <span>Frictionless login: instant embedded wallet or MetaMask</span>
-                        </li>
-                        <li>
-                          <span className="checklist-bullet-badge">
-                            <Check size={12} />
-                          </span>
-                          <span>Sub-cent gas fees powered by high-speed Whitechain</span>
-                        </li>
-                        <li>
-                          <span className="checklist-bullet-badge">
-                            <Check size={12} />
-                          </span>
-                          <span>Verifiable immutable receipt on Archiv for every spend</span>
-                        </li>
-                      </ul>
-                      <div className="split-cta">
-                        <Link className="btn-dark-pill" href="/app">
-                          Start Paying →
-                        </Link>
-                      </div>
-
-                      {/* Shopper Mobile Preview Thumbnail */}
-                      <div className="split-preview-box shopper-box">
-                        <div className="mini-pos-head">
-                          <TokenChainIcon symbol="WBT" chain="whitechain" size={32} />
-                          <div>
-                            <strong>Paid 7.64 WBT</strong>
-                            <small>Settled as 149.00 USDT on Whitechain</small>
-                          </div>
-                          <span className="active-tag">Complete</span>
-                        </div>
-                        <div className="mini-preview-bottom">
-                          <div className="mini-pos-kpi">
-                            <span>Archiv Receipt</span>
-                            <code>arc_0x7b2f4891</code>
-                          </div>
-                          <div className="mini-db-tag">
-                            <ArchivIcon size={14} />
-                            <span>Verified Proof</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Section 6: Dark Hackathon Launch CTA */}
-                <section className="section cta-dark-section">
-                  <div className="container">
-                    <div className="dark-cta-card">
-                      <div className="dark-cta-content">
-                        <span className="dark-cta-badge">WHITECHAIN HACKATHON 2026</span>
-                        <h2>Experience USDT Settlement on Whitechain</h2>
-                        <p>
-                          Test the live crypto checkout with zero volatility in USDT and permanent receipts on Archiv. Built for frictionless Web3 commerce.
-                        </p>
-                        <div className="dark-cta-actions">
-                        <Link className="btn-primary-white" href="/app">
-                          Launch Consumer App
-                        </Link>
-                        <Link className="btn-outline-white" href="/merchant">
-                          Open Merchant Portal
-                        </Link>
-                      </div>
+                    <div className="proof-status-row">
+                      <span className="proof-live-dot" />
+                      <span>Immutable &amp; Tamper-Proof</span>
                     </div>
                   </div>
                 </div>
-              </section>
-            </main>
+              </article>
 
-            {/* Section 8: Footer */}
-            <footer className="site-footer">
-              <div className="container footer-top-row">
-                <div className="footer-brand-col">
-                  <Logo />
-                  <p>Simplify payments with USDT on Whitechain and permanent receipts on Archiv.</p>
-                </div>
-
-                <div className="footer-columns">
-                  <div className="footer-col">
-                    <h5>Products</h5>
-                    <Link href="/app">Crypto Checkout</Link>
-                    <Link href="/merchant">UPI QR Gateway</Link>
-                    <a href="#solutions">Whitechain Router</a>
-                    <a href="#features">Archiv Proofs</a>
-                  </div>
-
-                  <div className="footer-col">
-                    <h5>Solutions</h5>
-                    <a href="#merchants">E-Commerce Stores</a>
-                    <a href="#merchants">Retail Merchants</a>
-                    <a href="#merchants">Global Invoicing</a>
-                    <a href="#merchants">Cross-Border Pay</a>
-                  </div>
-
-                  <div className="footer-col">
-                    <h5>Developers</h5>
-                    <a href="#">Documentation</a>
-                    <a href="#">API Reference</a>
-                    <a href="#">Smart Contracts</a>
-                    <a href="#">GitHub <ArrowUpRight /></a>
-                  </div>
-
-                  <div className="footer-col">
-                    <h5>Ecosystem</h5>
-                    <a href="https://explorer.whitechain.io" target="_blank" rel="noreferrer">Whitechain Explorer <ArrowUpRight /></a>
-                    <a href="#">Archiv Network</a>
-                    <a href="#">WhiteBIT (WBT)</a>
-                    <a href="#">Tether (USDT)</a>
-                  </div>
-
-                  <div className="footer-col">
-                    <h5>Company</h5>
-                    <a href="#">About Us</a>
-                    <a href="#">Security</a>
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Service</a>
+              {/* Bento Card 3: Wide Card across bottom */}
+              <article className="bento-card bento-card-wide">
+                <div className="bento-wide-copy">
+                  <h3>Fast &amp; Frictionless Checkout</h3>
+                  <p>
+                    Provide your shoppers with a native, one-click payment experience. Settlements complete in under 0.8s directly into USDT on Whitechain with permanent receipts on Archiv.
+                  </p>
+                  <div className="bento-pills-row">
+                    <span className="bento-micro-pill">
+                      <span className="pill-dot green" /> 0.8s Latency
+                    </span>
+                    <span className="bento-micro-pill">
+                      <span className="pill-dot purple" /> Zero Volatility
+                    </span>
+                    <span className="bento-micro-pill">
+                      <span className="pill-dot blue" /> Archiv Verified
+                    </span>
                   </div>
                 </div>
-              </div>
-
-              <div className="container footer-bottom-row">
-                <span>© {new Date().getFullYear()} WhitePe. All rights reserved.</span>
-                <span>Settled in USDT on Whitechain · Verified on Archiv</span>
-              </div>
-            </footer>
+                <div className="bento-visual settlement-visual-card">
+                  <div className="settle-notice">
+                    <span className="settle-check">✓</span>
+                    <div>
+                      <strong>+149.00 USDT Received</strong>
+                      <small>Settled on Whitechain · Verified on Archiv</small>
+                    </div>
+                  </div>
+                  <div className="mini-receipt-details">
+                    <div className="receipt-line">
+                      <span>Order WP-84231</span>
+                      <span>Customer: 7.64 WBT</span>
+                    </div>
+                    <div className="receipt-line">
+                      <span>Proof ID</span>
+                      <code>arc_0x92bca710</code>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
           </div>
-          )
+        </section>
+
+        {/* Section 5: Split Comparison (Shop Owners vs Shoppers) */}
+        <section className="section split-comparison-section" id="merchants">
+          <div className="container split-grid">
+            {/* Left Card: Shop Owners */}
+            <div className="split-card merchant-card">
+              <span className="split-kicker">FOR SHOP OWNERS</span>
+              <h3 className="split-title">Trusted by Shop Owners</h3>
+              <ul className="split-checklist">
+                <li>
+                  <span className="checklist-bullet-badge">
+                    <Check size={12} />
+                  </span>
+                  <span>Zero chargebacks &amp; complete fraud immunity</span>
+                </li>
+                <li>
+                  <span className="checklist-bullet-badge">
+                    <Check size={12} />
+                  </span>
+                  <span>Direct USDT settlement on Whitechain into your self-custody wallet</span>
+                </li>
+                <li>
+                  <span className="checklist-bullet-badge">
+                    <Check size={12} />
+                  </span>
+                  <span>Link existing merchant UPI QR or checkout in under 60 seconds</span>
+                </li>
+                <li>
+                  <span className="checklist-bullet-badge">
+                    <Check size={12} />
+                  </span>
+                  <span>Permanent tax-compliant &amp; verifiable receipts on Archiv</span>
+                </li>
+              </ul>
+              <div className="split-cta">
+                <Link className="btn-dark-pill" href="/merchant">
+                  Join as Merchant →
+                </Link>
+              </div>
+
+              {/* Merchant POS Preview Thumbnail */}
+              <div className="split-preview-box">
+                <div className="mini-pos-head">
+                  <span className="avatar-pill">BC</span>
+                  <div>
+                    <strong>Bombay Coffee Co.</strong>
+                    <small>Active Merchant · Whitechain</small>
+                  </div>
+                  <span className="active-tag">Active</span>
+                </div>
+                <div className="mini-preview-bottom">
+                  <div className="mini-pos-kpi">
+                    <span>Today&apos;s USDT Settlements</span>
+                    <strong>$1,842.50 <small>USDT</small></strong>
+                  </div>
+                  <div className="mini-db-tag">
+                    <ArchivIcon size={14} />
+                    <span>Archiv Synced</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Card: Shoppers */}
+            <div className="split-card shopper-card" id="shoppers">
+              <span className="split-kicker shopper">FOR SHOPPERS</span>
+              <h3 className="split-title">Shoppers&apos; Choice</h3>
+              <ul className="split-checklist">
+                <li>
+                  <span className="checklist-bullet-badge">
+                    <Check size={12} />
+                  </span>
+                  <span>Scan any UPI QR or checkout with the crypto you already hold</span>
+                </li>
+                <li>
+                  <span className="checklist-bullet-badge">
+                    <Check size={12} />
+                  </span>
+                  <span>Frictionless login: instant embedded wallet or MetaMask</span>
+                </li>
+                <li>
+                  <span className="checklist-bullet-badge">
+                    <Check size={12} />
+                  </span>
+                  <span>Sub-cent gas fees powered by high-speed Whitechain</span>
+                </li>
+                <li>
+                  <span className="checklist-bullet-badge">
+                    <Check size={12} />
+                  </span>
+                  <span>Verifiable immutable receipt on Archiv for every spend</span>
+                </li>
+              </ul>
+              <div className="split-cta">
+                <Link className="btn-dark-pill" href="/app">
+                  Start Paying →
+                </Link>
+              </div>
+
+              {/* Shopper Mobile Preview Thumbnail */}
+              <div className="split-preview-box shopper-box">
+                <div className="mini-pos-head">
+                  <TokenChainIcon symbol="WBT" chain="whitechain" size={32} />
+                  <div>
+                    <strong>Paid 7.64 WBT</strong>
+                    <small>Settled as 149.00 USDT on Whitechain</small>
+                  </div>
+                  <span className="active-tag">Complete</span>
+                </div>
+                <div className="mini-preview-bottom">
+                  <div className="mini-pos-kpi">
+                    <span>Archiv Receipt</span>
+                    <code>arc_0x7b2f4891</code>
+                  </div>
+                  <div className="mini-db-tag">
+                    <ArchivIcon size={14} />
+                    <span>Verified Proof</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 6: Dark CTA Section */}
+        <section className="section cta-dark-section">
+          <div className="container">
+            <div className="dark-cta-card">
+              <div className="dark-cta-content">
+                <h2>Experience USDT Settlement on Whitechain</h2>
+                <p>
+                  Test the live crypto checkout with zero volatility in USDT and permanent receipts on Archiv. Built for frictionless Web3 commerce.
+                </p>
+                <div className="dark-cta-actions">
+                  <Link className="btn-primary-white" href="/app">
+                    Launch Consumer App
+                  </Link>
+                  <Link className="btn-outline-white" href="/merchant">
+                    Open Merchant Portal
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Section 8: Footer */}
+      <footer className="site-footer">
+        <div className="container footer-top-row">
+          <div className="footer-brand-col">
+            <Logo />
+            <p>Simplify payments with USDT on Whitechain and permanent receipts on Archiv.</p>
+          </div>
+
+          <div className="footer-columns">
+            <div className="footer-col">
+              <h5>Products</h5>
+              <Link href="/app">Crypto Checkout</Link>
+              <Link href="/merchant">UPI QR Gateway</Link>
+              <a href="#solutions">Whitechain Router</a>
+              <a href="#features">Archiv Proofs</a>
+            </div>
+
+            <div className="footer-col">
+              <h5>Solutions</h5>
+              <a href="#merchants">E-Commerce Stores</a>
+              <a href="#merchants">Retail Merchants</a>
+              <a href="#merchants">Global Invoicing</a>
+              <a href="#merchants">Cross-Border Pay</a>
+            </div>
+
+            <div className="footer-col">
+              <h5>Developers</h5>
+              <a href="#">Documentation</a>
+              <a href="#">API Reference</a>
+              <a href="#">Smart Contracts</a>
+              <a href="#">GitHub <ArrowUpRight /></a>
+            </div>
+
+            <div className="footer-col">
+              <h5>Ecosystem</h5>
+              <a href="https://explorer.whitechain.io" target="_blank" rel="noreferrer">Whitechain Explorer <ArrowUpRight /></a>
+              <a href="#">Archiv Network</a>
+              <a href="#">WhiteBIT (WBT)</a>
+              <a href="#">Tether (USDT)</a>
+            </div>
+
+            <div className="footer-col">
+              <h5>Company</h5>
+              <a href="#">About Us</a>
+              <a href="#">Security</a>
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+            </div>
+          </div>
+        </div>
+
+        <div className="container footer-bottom-row">
+          <span>© {new Date().getFullYear()} WhitePe. All rights reserved.</span>
+          <span>Settled in USDT on Whitechain · Verified on Archiv</span>
+        </div>
+      </footer>
+    </div>
+  )
 }

@@ -7,7 +7,7 @@ import type { ReactNode } from "react"
 
 type IconNode = [string, Record<string, string | number>, IconNode[]?]
 type IconShape = "circle" | "squircle" | "none"
-type IconDef = { nodes: IconNode[]; shape: IconShape; surface?: string }
+type IconDef = { nodes: IconNode[]; shape: IconShape; surface?: string; viewBox?: string }
 
 export type TokenSymbol = "ETH" | "USDC" | "MON" | "USDT" | "DAI" | "WBT" | "BTC"
 export type ChainId = "monad" | "ethereum" | "base" | "arbitrum" | "whitechain" | "archiv"
@@ -181,40 +181,57 @@ const TOKENS: Record<TokenSymbol, IconDef> = {
 
 const CHAINS: Record<ChainId, IconDef> = {
   whitechain: {
+    viewBox: "-36 -36 584 584",
+    surface: "#FFFFFF",
     nodes: [
-      ["path", { fill: "#121824", d: "M24 0H0v24h24z" }],
+      ["circle", { cx: 256, cy: 256, r: 292, fill: "#FFFFFF" }],
       [
         "path",
         {
-          fill: "none",
-          stroke: "#F39200",
-          strokeWidth: "2.3",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          d: "M6 8.5l3.8 8.5 2.2-5.3 2.2 5.3 3.8-8.5",
+          fillRule: "evenodd",
+          clipRule: "evenodd",
+          d: "M124 28C70.9807 28 28 70.9807 28 124V298C28 326.227 40.1823 351.607 59.5759 369.175L149.633 459.232L214.864 394H298C351.019 394 394 351.019 394 298V214.864L459.313 149.55L366.637 56.8735L366.634 56.8778C349.204 39.0591 324.894 28 298 28H124Z",
+          fill: "#080A28",
         },
       ],
-      ["circle", { cx: "12", cy: "5", r: "1.5", fill: "#F39200" }],
+      [
+        "path",
+        {
+          d: "M118.001 213.999C118.001 160.98 160.981 117.999 214.001 117.999H388C441.019 117.999 484 160.98 484 213.999V388C484 441.019 441.019 484 388 484H214.001C160.981 484 118.001 441.019 118.001 388V213.999Z",
+          fill: "#0066FF",
+        },
+      ],
+      [
+        "path",
+        {
+          d: "M118 196C118 152.922 152.922 118 196 118H394V316C394 359.077 359.077 394 316 394H118V196Z",
+          fill: "#FFFFFF",
+        },
+      ],
+      [
+        "path",
+        {
+          d: "M212.643 299.357C182.451 269.165 182.451 220.193 212.643 190.001L321.999 299.357C291.807 329.548 242.835 329.548 212.643 299.357Z",
+          fill: "#080A28",
+        },
+      ],
     ],
     shape: "circle",
   },
   archiv: {
+    viewBox: "0 0 64 64",
+    surface: "#181EA9",
     nodes: [
-      ["path", { fill: "#059669", d: "M24 0H0v24h24z" }],
+      ["circle", { cx: 32, cy: 32, r: 32, fill: "#181EA9" }],
       [
-        "path",
-        {
-          fill: "#047857",
-          stroke: "#A7F3D0",
-          strokeWidth: "1.2",
-          strokeLinejoin: "round",
-          d: "M12 5.5L18 8.9V15.1L12 18.5L6 15.1V8.9L12 5.5Z",
-        },
+        "g",
+        { transform: "translate(5 17)", fill: "#FFFFFF" },
+        [
+          ["path", { d: "M47.1367 0H53.9847V30.24H47.1367V25.664H49.4407V4.576H47.1367V0Z" }],
+          ["path", { d: "M37.1357 25.1202H31.9837L30.4157 20.2882H23.3117L21.7117 25.1202H16.8477V23.3282L24.2717 2.72021H29.6797L37.1357 23.3282V25.1202ZM28.8797 15.6802L26.8957 9.56822L24.8477 15.6802H28.8797Z" }],
+          ["path", { d: "M6.848 30.24H0V0H6.848V4.576H4.544V25.664H6.848V30.24Z" }],
+        ],
       ],
-      ["path", { fill: "#10B981", d: "M12 5.5L18 8.9L12 12.3L6 8.9L12 5.5Z" }],
-      ["path", { fill: "#059669", d: "M12 12.3V18.5L6 15.1V8.9L12 12.3Z" }],
-      ["path", { fill: "#047857", d: "M12 12.3L18 8.9V15.1L12 18.5V12.3Z" }],
-      ["circle", { cx: "12", cy: "8.9", r: "1.3", fill: "#FFFFFF" }],
     ],
     shape: "circle",
   },
@@ -489,9 +506,10 @@ function BrandIcon({
 }: IconProps & { def: IconDef }) {
   const radius =
     def.shape === "circle" ? "50%" : def.shape === "squircle" ? "24%" : undefined
+  const viewBox = def.viewBox || "0 0 24 24"
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox={viewBox}
       width={size}
       height={size}
       fill="none"
@@ -505,11 +523,18 @@ function BrandIcon({
         minWidth: `${size}px`,
         minHeight: `${size}px`,
         borderRadius: radius,
+        overflow: radius ? "hidden" : undefined,
         flexShrink: 0,
       }}
     >
       {title ? <title>{title}</title> : null}
-      {def.surface ? <circle cx="12" cy="12" r="12" fill={def.surface} /> : null}
+      {def.surface ? (
+        def.viewBox ? (
+          <rect width="100%" height="100%" fill={def.surface} />
+        ) : (
+          <circle cx="12" cy="12" r="12" fill={def.surface} />
+        )
+      ) : null}
       {renderNodes(def.nodes)}
     </svg>
   )
@@ -545,7 +570,7 @@ export function WhitechainIcon({
   return <ChainIcon chain="whitechain" size={size} className={className} title={title} />
 }
 
-/** Standalone official Archiv Web3 Database icon component */
+/** Standalone official Archiv Web3 Database icon component (from arkiv.network/brand) */
 export function ArchivIcon({
   size = 20,
   className = "",
@@ -555,7 +580,7 @@ export function ArchivIcon({
     <svg
       width={size}
       height={size}
-      viewBox="0 0 24 24"
+      viewBox="0 0 64 64"
       fill="none"
       role={title ? "img" : undefined}
       aria-label={title}
@@ -566,42 +591,18 @@ export function ArchivIcon({
         height: `${size}px`,
         minWidth: `${size}px`,
         minHeight: `${size}px`,
+        borderRadius: "50%",
+        overflow: "hidden",
         flexShrink: 0,
       }}
     >
       {title ? <title>{title}</title> : null}
-      <circle cx="12" cy="12" r="12" fill="#059669" />
-      {/* 3D Web3 Decentralized DB Cube */}
-      <path
-        d="M12 5.2L18.2 8.8V15.2L12 18.8L5.8 15.2V8.8L12 5.2Z"
-        fill="#047857"
-        stroke="#A7F3D0"
-        strokeWidth="1.1"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 5.2L18.2 8.8L12 12.4L5.8 8.8L12 5.2Z"
-        fill="#10B981"
-      />
-      <path
-        d="M12 12.4V18.8L5.8 15.2V8.8L12 12.4Z"
-        fill="#059669"
-      />
-      <path
-        d="M12 12.4L18.2 8.8V15.2L12 18.8V12.4Z"
-        fill="#047857"
-      />
-      {/* Web3 Database query tier lines */}
-      <path
-        d="M8.6 12.8L12 14.8L15.4 12.8"
-        stroke="#ECFDF5"
-        strokeWidth="1.1"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="8.8" r="1.3" fill="#FFFFFF" />
-      <circle cx="8.6" cy="12.8" r="0.9" fill="#A7F3D0" />
-      <circle cx="15.4" cy="12.8" r="0.9" fill="#A7F3D0" />
+      <circle cx="32" cy="32" r="32" fill="#181EA9" />
+      <g transform="translate(5 17)" fill="#FFFFFF">
+        <path d="M47.1367 0H53.9847V30.24H47.1367V25.664H49.4407V4.576H47.1367V0Z" />
+        <path d="M37.1357 25.1202H31.9837L30.4157 20.2882H23.3117L21.7117 25.1202H16.8477V23.3282L24.2717 2.72021H29.6797L37.1357 23.3282V25.1202ZM28.8797 15.6802L26.8957 9.56822L24.8477 15.6802H28.8797Z" />
+        <path d="M6.848 30.24H0V0H6.848V4.576H4.544V25.664H6.848V30.24Z" />
+      </g>
     </svg>
   )
 }

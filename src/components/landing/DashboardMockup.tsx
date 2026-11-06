@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { TokenChainIcon, ArchivIcon } from "@/components/ui/crypto-icons"
+import { TokenChainIcon, ChainIcon, ArchivIcon } from "@/components/ui/crypto-icons"
 import { Check } from "./icons"
 import { LayoutGrid, DollarSign, Globe, Settings, Search } from "lucide-react"
 
@@ -86,7 +86,9 @@ export function DashboardMockup() {
                 <input type="text" placeholder="Search orders, tx hash, or Archiv proof..." readOnly value="Filter: Last 30 Days" />
               </div>
               <div className="top-bar-actions">
-                <span className="badge-chain">Whitechain EVM</span>
+                <span className="badge-chain">
+                  <ChainIcon chain="whitechain" size={13} /> Whitechain EVM
+                </span>
                 <span className="badge-archiv">
                   <ArchivIcon size={13} /> Archiv Synced
                 </span>
