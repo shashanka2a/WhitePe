@@ -1241,3 +1241,55 @@
     align-items: center;
   }
 }
+
+/* Archiv Web3 Database styling */
+.mp-archiv-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: rgba(24, 30, 169, 0.08);
+  color: #181ea9;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+}
+
+.mp-archiv-badge:hover {
+  background: rgba(24, 30, 169, 0.16);
+  transform: translateY(-1px);
+}
+
+.mp-archiv-code {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #f4f1f8;
+  color: #56318d;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  word-break: break-all;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.mp-archiv-code:hover {
+  background: #eedefa;
+  color: #431f78;
+  border-color: #d1baf4;
+}
+
+.mp-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}

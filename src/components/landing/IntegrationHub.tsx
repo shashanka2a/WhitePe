@@ -1,6 +1,6 @@
 "use client"
 
-import { ChainIcon, TokenIcon, ArchivIcon } from "@/components/ui/crypto-icons"
+import { ChainIcon, TokenIcon, ArchivIcon, LiFiIcon } from "@/components/ui/crypto-icons"
 import { QrCode, ShoppingBag, Wallet } from "lucide-react"
 
 export function IntegrationHub() {
@@ -57,10 +57,10 @@ export function IntegrationHub() {
         </div>
 
         <div className="sat-node sat-bot-right">
-          <div className="sat-icon metamask-color">
-            <Wallet size={20} className="text-white" />
+          <div className="sat-icon lifi-color">
+            <LiFiIcon size={24} />
           </div>
-          <span>Web3 Wallets</span>
+          <span>LI.FI Bridge</span>
         </div>
       </div>
 

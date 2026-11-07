@@ -2,7 +2,7 @@
 
 **Pay with crypto. Scan any UPI QR. Settle in USDT on Whitechain.**
 
-WhitePe is a crypto payment gateway that lets customers pay at any UPI merchant using crypto from multiple chains while merchants receive stablecoin (USDT) on [Whitechain](https://whitechain.io) with tamper-proof receipts on [Arkiv](https://arkiv.network).
+WhitePe is a crypto payment gateway that lets customers pay at any UPI merchant using crypto from multiple chains while merchants receive stablecoin (USDT) on [Whitechain](https://whitechain.io) with tamper-proof receipts on [Arkiv](https://arkiv.network). Cross-chain bridging and token swaps are aggregated via [LI.FI](https://li.fi).
 
 ---
 
@@ -23,32 +23,22 @@ A centralized database can track numbers, but it cannot prove that a specific tr
 ## Architecture
 
 ```
-Customer (any chain)
+Customer (any chain: Ethereum, Base, Arbitrum, Polygon, etc.)
        │
-       │  Pays with ETH, USDC, WBT, or any supported token
+       │  Pays with ETH, USDC, WBT, or any token
        ▼
 ┌─────────────────────┐
-│  WhitePe Frontend   │  Next.js app (consumer checkout and merchant portal)
+│  WhitePe Checkout   │  Next.js consumer UI (scan UPI QR)
 │  (src/)             │
 └────────┬────────────┘
          │
          ▼
-┌─────────────────────┐
-│  WhitePe Backend    │  Routing engine: selects bridge and DEX path
-│  (orchestration)    │  Monitors source-chain tx and triggers settlement
-└────────┬────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  Bridge / Solver    │  Existing cross-chain infrastructure
-│  (protocol routes)  │  Locks/burns source token, releases on Whitechain
-└────────┬────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│  DEX Router         │  Whitechain automated market maker
-│  (protocol routes)  │  Swaps received token to USDT
-└────────┬────────────┘
+┌─────────────────────────────────────────────────────────┐
+│  LI.FI Cross-Chain Bridge and DEX Aggregator            │
+│  * Finds optimal bridge and swap route across 30+ chains│
+│  * Bridges assets cross-chain into Whitechain           │
+│  * Swaps source assets into USDT on Whitechain          │
+└────────┬────────────────────────────────────────────────┘
          │
          ▼
 ┌─────────────────────────────────────────────────────────┐
@@ -72,6 +62,15 @@ Customer (any chain)
 └─────────────────────┘
 ```
 
+### Cross-Chain Bridging via LI.FI
+
+WhitePe integrates LI.FI as its cross-chain bridging and liquidity aggregation protocol:
+
+1. **Multi-Chain Input**: Customers can pay from Ethereum, Base, Arbitrum, Polygon, Optimism, or any EVM chain supported by LI.FI.
+2. **Aggregated Routing**: LI.FI evaluates liquidity pools, gas costs, and bridge fees across protocols (Across, Stargate, Symbiosis, etc.) to discover the optimal path.
+3. **Single Transaction Flow**: The customer signs one transaction on their source chain. LI.FI executes the cross-chain bridge and swap, delivering USDT directly to the merchant on Whitechain.
+4. **Final Settlement**: The Whitechain settlement contract validates the invoice, forwards USDT to the merchant wallet, and emits an event indexed by Arkiv.
+
 ---
 
 ## Smart Contract Overview
@@ -82,7 +81,6 @@ WhitePe keeps its smart contract footprint minimal:
 |---|---|---|
 | **WhitePeSettlement** | `contracts/src/WhitePeSettlement.sol` | Receives USDT from payer, forwards to merchant wallet, and emits `PaymentSettled` events while preventing duplicate settlements. |
 | **WhitePeInvoiceRegistry** | `contracts/src/WhitePeInvoiceRegistry.sol` | Records invoices on-chain with expiry, status, and payer information for public auditability. |
-| **MockUSDT** | `contracts/src/MockUSDT.sol` | ERC-20 token (6 decimals) for Whitechain Sepolia testnet testing and verification. |
 | **IERC20** | `contracts/src/IERC20.sol` | Minimal standalone ERC-20 interface without external dependencies. |
 
 ---
@@ -120,7 +118,7 @@ Import your deployer private key into Foundry's encrypted keystore (do not paste
 cast wallet import deployer --interactive
 ```
 
-Verify your address and balance:
+Verify your address:
 
 ```bash
 cast wallet address --account deployer
@@ -148,12 +146,10 @@ forge test -vvv
 
 ### Step 5: Deploy to Whitechain Sepolia
 
-#### Option A: Deploy All Contracts with Mock USDT (Recommended for Testnet)
-
-This script deploys `MockUSDT` (1,000,000 tokens), `WhitePeSettlement`, and `WhitePeInvoiceRegistry`, then wires the contracts together in a single transaction sequence:
+Run the deployment script with your target USDT token address:
 
 ```bash
-forge script script/Deploy.s.sol:DeployWithMockUSDT \
+USDT_ADDRESS=0x<USDT_ADDRESS> forge script script/Deploy.s.sol:Deploy \
   --rpc-url https://rpc.testnet.whitechain.io \
   --account deployer \
   --broadcast \
@@ -161,52 +157,6 @@ forge script script/Deploy.s.sol:DeployWithMockUSDT \
   --verifier blockscout \
   --verifier-url https://explorer.testnet.whitechain.io/api/
 ```
-
-#### Option B: Deploy Using an Existing USDT Address
-
-If you already have a USDT token address on Whitechain Sepolia:
-
-```bash
-USDT_ADDRESS=0x<YOUR_USDT_ADDRESS> forge script script/Deploy.s.sol:Deploy \
-  --rpc-url https://rpc.testnet.whitechain.io \
-  --account deployer \
-  --broadcast \
-  --verify \
-  --verifier blockscout \
-  --verifier-url https://explorer.testnet.whitechain.io/api/
-```
-
-#### Option C: Step-by-Step Deployment via `forge create`
-
-1. **Deploy WhitePeInvoiceRegistry**:
-   ```bash
-   forge create src/WhitePeInvoiceRegistry.sol:WhitePeInvoiceRegistry \
-     --rpc-url https://rpc.testnet.whitechain.io \
-     --account deployer \
-     --broadcast \
-     --verify \
-     --verifier blockscout \
-     --verifier-url https://explorer.testnet.whitechain.io/api/
-   ```
-
-2. **Deploy WhitePeSettlement** (passing the USDT address as constructor arg at the very end):
-   ```bash
-   forge create src/WhitePeSettlement.sol:WhitePeSettlement \
-     --rpc-url https://rpc.testnet.whitechain.io \
-     --account deployer \
-     --broadcast \
-     --verify \
-     --verifier blockscout \
-     --verifier-url https://explorer.testnet.whitechain.io/api/ \
-     --constructor-args 0x<USDT_ADDRESS>
-   ```
-
-3. **Wire Registry Permission**:
-   ```bash
-   cast send 0x<REGISTRY_ADDRESS> "setSettlementContract(address)" 0x<SETTLEMENT_ADDRESS> \
-     --rpc-url https://rpc.testnet.whitechain.io \
-     --account deployer
-   ```
 
 ### Step 6: Verify on Blockscout Explorer
 
@@ -214,14 +164,14 @@ If automatic verification was skipped or failed during broadcast, verify manuall
 
 ```bash
 # Verify WhitePeSettlement
-forge verify-contract 0x<SETTLEMENT_ADDRESS> src/WhitePeSettlement.sol:WhitePeSettlement \
+forge verify-contract <SETTLEMENT_ADDRESS> src/WhitePeSettlement.sol:WhitePeSettlement \
   --verifier blockscout \
   --verifier-url https://explorer.testnet.whitechain.io/api/ \
   --chain 1874 \
-  --constructor-args $(cast abi-encode "constructor(address)" 0x<USDT_ADDRESS>)
+  --constructor-args $(cast abi-encode "constructor(address)" <USDT_ADDRESS>)
 
 # Verify WhitePeInvoiceRegistry
-forge verify-contract 0x<REGISTRY_ADDRESS> src/WhitePeInvoiceRegistry.sol:WhitePeInvoiceRegistry \
+forge verify-contract <REGISTRY_ADDRESS> src/WhitePeInvoiceRegistry.sol:WhitePeInvoiceRegistry \
   --verifier blockscout \
   --verifier-url https://explorer.testnet.whitechain.io/api/ \
   --chain 1874
@@ -231,13 +181,10 @@ forge verify-contract 0x<REGISTRY_ADDRESS> src/WhitePeInvoiceRegistry.sol:WhiteP
 
 ## Deployed Contracts (Whitechain Sepolia)
 
-Update these values upon deployment:
-
-| Contract | Address | Explorer Link |
+| Contract | Target Network | Status |
 |---|---|---|
-| WhitePeSettlement | `Pending Deployment` | [View on Explorer](https://explorer.testnet.whitechain.io) |
-| WhitePeInvoiceRegistry | `Pending Deployment` | [View on Explorer](https://explorer.testnet.whitechain.io) |
-| MockUSDT | `Pending Deployment` | [View on Explorer](https://explorer.testnet.whitechain.io) |
+| WhitePeSettlement | Whitechain Sepolia (Chain ID 1874) | Ready for deployment |
+| WhitePeInvoiceRegistry | Whitechain Sepolia (Chain ID 1874) | Ready for deployment |
 
 ---
 
@@ -276,7 +223,6 @@ WhitePe/
 │   │   └── Deploy.s.sol          # Deployment script
 │   ├── src/
 │   │   ├── IERC20.sol            # ERC-20 interface
-│   │   ├── MockUSDT.sol          # Testnet USDT token
 │   │   ├── WhitePeInvoiceRegistry.sol
 │   │   └── WhitePeSettlement.sol
 │   ├── test/
@@ -289,7 +235,7 @@ WhitePe/
 │   │   └── page.tsx              # Landing page
 │   ├── components/               # UI and landing page components
 │   └── features/                 # Merchant and user workflows
-├── public/brands/                # Official Whitechain and Arkiv brand assets
+├── public/brands/                # Official Whitechain, Arkiv, and LI.FI brand assets
 └── package.json
 ```
 
@@ -297,7 +243,7 @@ WhitePe/
 
 ## Current Status and Limitations
 
-- **Testnet Deployment**: All smart contracts and transactions currently target Whitechain Sepolia (Chain ID `1874`).
+- **Testnet Deployment**: All smart contracts and transactions currently target Whitechain Sepolia (Chain ID 1874).
 - **Faucet Limits**: Testnet WBT for deployment gas is subject to faucet limits of 0.5 WBT per rolling 24-hour window.
 - **Contract Verification**: Contracts are compiled with Solidity 0.8.28 and verifiable publicly on the Whitechain Blockscout explorer.
 

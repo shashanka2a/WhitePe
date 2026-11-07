@@ -263,18 +263,18 @@ function quoteFor(asset: Asset, usdt: number) {
 
 function hopsFor(asset: Asset, paid: string, usdt: string, merchant: string) {
   const hops = [{ title: "Your wallet", sub: `${paid} · ${asset.chain}` }]
-  if (asset.kind === "swap" || asset.kind === "swapbridge")
+  if (asset.kind === "swap")
     hops.push({
       title: `Swap ${asset.symbol} to USDT`,
       sub: `On ${asset.chain}`,
     })
   if (asset.kind === "bridge" || asset.kind === "swapbridge")
     hops.push({
-      title: "Bridge to Whitechain",
-      sub: `${asset.chain} → Whitechain`,
+      title: "LI.FI Cross-Chain Bridge",
+      sub: `${asset.chain} → Whitechain (Aggregated via LI.FI)`,
     })
   if (asset.kind === "direct")
-    hops.push({ title: "Direct transfer", sub: "No swap or bridge needed" })
+    hops.push({ title: "Direct transfer", sub: "Native Whitechain settlement" })
   hops.push({ title: merchant, sub: `${usdt} USDT · Whitechain` })
   hops.push({ title: "Archiv Web3 Database", sub: "Receipt proof indexed" })
   return hops
@@ -282,10 +282,10 @@ function hopsFor(asset: Asset, paid: string, usdt: string, merchant: string) {
 
 function stepsFor(asset: Asset) {
   const steps = ["Signature confirmed"]
-  if (asset.kind === "swap" || asset.kind === "swapbridge")
-    steps.push(`Swapping ${asset.symbol} to USDT`)
+  if (asset.kind === "swap")
+    steps.push(`Swapping ${asset.symbol} to USDT on ${asset.chain}`)
   if (asset.kind === "bridge" || asset.kind === "swapbridge")
-    steps.push(`Bridging USDT from ${asset.chain} to Whitechain`)
+    steps.push(`Routing via LI.FI: ${asset.chain} to Whitechain`)
   steps.push("Settling USDT to merchant on Whitechain")
   steps.push("Indexing receipt on Archiv")
   steps.push("Merchant notified")
@@ -1485,6 +1485,10 @@ function PayFlow({
                 <div>
                   <dt>Exchange rate</dt>
                   <dd>{rateLabel(asset)}</dd>
+                </div>
+                <div>
+                  <dt>Bridge protocol</dt>
+                  <dd>{asset.kind === "direct" ? "None (Native Whitechain)" : "LI.FI Aggregator"}</dd>
                 </div>
                 <div>
                   <dt>Routing fee</dt>

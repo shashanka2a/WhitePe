@@ -607,6 +607,46 @@ export function ArchivIcon({
   )
 }
 
+/** Standalone official LI.FI Cross-Chain Bridge icon component */
+export function LiFiIcon({
+  size = 20,
+  className = "",
+  title = "LI.FI Cross-Chain Bridge",
+}: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      role={title ? "img" : undefined}
+      aria-label={title}
+      aria-hidden={title ? undefined : true}
+      className={`shrink-0 ${className}`}
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        minWidth: `${size}px`,
+        minHeight: `${size}px`,
+        borderRadius: "50%",
+        overflow: "hidden",
+        background: "#F7C2FF",
+        flexShrink: 0,
+      }}
+    >
+      {title ? <title>{title}</title> : null}
+      <g fill="#000000">
+        <path d="m8 0 3.293 3.293a1 1 0 0 1 0 1.414l-1.96 1.96L8 5.333A3.77 3.77 0 0 1 8 0" />
+        <path
+          fillRule="evenodd"
+          d="m8 16-5.334-5.333a3.77 3.77 0 0 1 0-5.334L7.293 9.96a1 1 0 0 0 1.414 0l4.626-4.627a3.77 3.77 0 0 1 0 5.334z"
+          clipRule="evenodd"
+        />
+      </g>
+    </svg>
+  )
+}
+
 /** Token icon with a small network badge, e.g. USDT on Whitechain. */
 export function TokenChainIcon({
   symbol,

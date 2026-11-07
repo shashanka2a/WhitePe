@@ -170,7 +170,7 @@ export default function HomePage() {
                 <div className="bento-text">
                   <h3>Accept Any Token Across Chains</h3>
                   <p>
-                    Shoppers pay with WBT, ETH, BTC, USDC, or USDT. Automated routing bridges and swaps directly to USDT on Whitechain.
+                    Shoppers pay with WBT, ETH, BTC, USDC, or USDT. Automated routing via LI.FI bridges and swaps directly to USDT on Whitechain.
                   </p>
                 </div>
                 <div className="bento-visual token-picker-visual">
@@ -451,7 +451,8 @@ export default function HomePage() {
             <div className="footer-col">
               <h5>Ecosystem</h5>
               <a href="https://explorer.whitechain.io" target="_blank" rel="noreferrer">Whitechain Explorer <ArrowUpRight /></a>
-              <a href="#">Archiv Network</a>
+              <a href="https://li.fi" target="_blank" rel="noreferrer">LI.FI Bridge <ArrowUpRight /></a>
+              <a href="https://arkiv.network" target="_blank" rel="noreferrer">Archiv Network <ArrowUpRight /></a>
               <a href="#">WhiteBIT (WBT)</a>
               <a href="#">Tether (USDT)</a>
             </div>

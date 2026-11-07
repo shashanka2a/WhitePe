@@ -1591,6 +1591,14 @@
   font-weight: 600;
   letter-spacing: normal;
   text-transform: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+}
+
+.mp-archiv-badge:hover {
+  background: rgba(24, 30, 169, 0.16);
+  transform: translateY(-1px);
 }
 
 .mp-archiv-code {
@@ -1603,6 +1611,15 @@
   font-size: 11px;
   font-weight: 600;
   word-break: break-all;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.mp-archiv-code:hover {
+  background: #eedefa;
+  color: #431f78;
+  border-color: #d1baf4;
 }
 
 .mp-receipt-actions {
