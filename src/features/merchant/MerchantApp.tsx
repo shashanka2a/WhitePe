@@ -9,6 +9,7 @@ import {
   isTokenSymbol,
   toChainId,
 } from "@/components/ui/crypto-icons"
+import { ArkivVerificationModal } from "@/components/ui/ArkivVerificationModal"
 import {
   useEffect,
   useMemo,
@@ -780,9 +781,11 @@ function Status({ value }: { value: PaymentStatus }) {
 function PaymentTable({
   onSelect,
   compact = false,
+  onVerifyArchiv,
 }: {
   onSelect: (payment: Payment) => void
   compact?: boolean
+  onVerifyArchiv?: (proofId: string) => void
 }) {
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState("All")
@@ -857,8 +860,9 @@ function PaymentTable({
                 <th>Transaction</th>
                 <th>Date & time</th>
                 <th>Customer paid</th>
-                <th>USDC received</th>
+                <th>USDT received</th>
                 <th>Status</th>
+                <th>Archiv Proof</th>
                 <th />
               </tr>
             </thead>
@@ -893,6 +897,25 @@ function PaymentTable({
                     <Status value={payment.status} />
                   </td>
                   <td>
+                    {payment.archivId ? (
+                      <button
+                        type="button"
+                        className="mp-archiv-code"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onVerifyArchiv?.(payment.archivId!)
+                        }}
+                        title="Click to verify cryptographic proof on Arkiv"
+                      >
+                        {payment.archivId.length > 14
+                          ? `${payment.archivId.slice(0, 10)}...`
+                          : payment.archivId}
+                      </button>
+                    ) : (
+                      <span style={{ color: "#9ca3af", fontSize: "11px" }}>—</span>
+                    )}
+                  </td>
+                  <td>
                     <button type="button" aria-label={`View ${payment.id}`}>
                       <Icon name="chevron" size={17} />
                     </button>
@@ -911,10 +934,12 @@ function Receipt({
   payment,
   onClose,
   notify,
+  onVerifyArchiv,
 }: {
   payment: Payment
   onClose: () => void
   notify: (message: string) => void
+  onVerifyArchiv?: (proofId: string) => void
 }) {
   useEffect(() => {
     const originalOverflow = document.body.style.overflow
@@ -1047,15 +1072,27 @@ function Receipt({
         <div className="mp-receipt-section">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
             <span>Archiv Web3 Database</span>
-            <span className="mp-archiv-badge">
-              <span className="mp-live-dot" /> Verified on Archiv
-            </span>
+            <button
+              type="button"
+              className="mp-archiv-badge"
+              onClick={() => onVerifyArchiv?.(archivProof)}
+              title="Click to view live cryptographic proof on Arkiv"
+            >
+              <span className="mp-live-dot" /> Verified on Archiv ↗
+            </button>
           </div>
           <dl>
             <div>
               <dt>Archiv Proof ID</dt>
               <dd>
-                <code className="mp-archiv-code">{archivProof}</code>
+                <button
+                  type="button"
+                  className="mp-archiv-code"
+                  onClick={() => onVerifyArchiv?.(archivProof)}
+                  title="Click to verify on Arkiv Rabdi testnet"
+                >
+                  {archivProof}
+                </button>
               </dd>
             </div>
             <div>
@@ -1088,9 +1125,11 @@ function Receipt({
 function Overview({
   onSelect,
   setPage,
+  onVerifyArchiv,
 }: {
   onSelect: (payment: Payment) => void
   setPage: (page: Page) => void
+  onVerifyArchiv?: (proofId: string) => void
 }) {
   const [range, setRange] = useState<keyof typeof chartData>("Weekly")
   const max = Math.max(...chartData[range])
@@ -1210,7 +1249,7 @@ function Overview({
           View all <Icon name="chevron" size={16} />
         </button>
       </div>
-      <PaymentTable compact onSelect={onSelect} />
+      <PaymentTable compact onSelect={onSelect} onVerifyArchiv={onVerifyArchiv} />
     </div>
   )
 }
@@ -1506,6 +1545,7 @@ function Dashboard({ onExit }: { onExit: () => void }) {
   const [collapsed, setCollapsed] = useState(false)
   const [selected, setSelected] = useState<Payment | null>(null)
   const [toast, setToast] = useState("")
+  const [arkivProofModal, setArkivProofModal] = useState<string | null>(null)
   const notify = (message: string) => {
     setToast(message)
     window.setTimeout(() => setToast(""), 2200)
@@ -1597,7 +1637,11 @@ function Dashboard({ onExit }: { onExit: () => void }) {
         </header>
         <main className="mp-content">
           {page === "overview" && (
-            <Overview onSelect={setSelected} setPage={setPage} />
+            <Overview
+              onSelect={setSelected}
+              setPage={setPage}
+              onVerifyArchiv={setArkivProofModal}
+            />
           )}
           {page === "payments" && (
             <div className="mp-page mp-enter">
@@ -1605,7 +1649,7 @@ function Dashboard({ onExit }: { onExit: () => void }) {
                 <div>
                   <span className="mp-kicker">Transactions</span>
                   <h1>Payments</h1>
-                  <p>Track customer payments and USDC settlements.</p>
+                  <p>Track customer payments and USDT settlements on Whitechain.</p>
                 </div>
                 <button
                   className="mp-secondary"
@@ -1616,7 +1660,10 @@ function Dashboard({ onExit }: { onExit: () => void }) {
                   Export
                 </button>
               </div>
-              <PaymentTable onSelect={setSelected} />
+              <PaymentTable
+                onSelect={setSelected}
+                onVerifyArchiv={setArkivProofModal}
+              />
             </div>
           )}
           {page === "profile" && <ProfilePage notify={notify} />}
@@ -1688,6 +1735,7 @@ function Dashboard({ onExit }: { onExit: () => void }) {
           payment={selected}
           onClose={() => setSelected(null)}
           notify={notify}
+          onVerifyArchiv={setArkivProofModal}
         />
       )}
       {toast && (
@@ -1696,6 +1744,11 @@ function Dashboard({ onExit }: { onExit: () => void }) {
           {toast}
         </div>
       )}
+      <ArkivVerificationModal
+        proofId={arkivProofModal}
+        isOpen={Boolean(arkivProofModal)}
+        onClose={() => setArkivProofModal(null)}
+      />
     </div>
   )
 }

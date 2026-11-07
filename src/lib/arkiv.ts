@@ -271,7 +271,8 @@ export async function indexPaymentOnArkiv(receipt: ArkivReceiptRecord): Promise<
   }
 
   // Deterministic cache & verified proof generation
-  const entityKey = `0x${receipt.archivProof.replace(/^arc_/, "")}${"0".repeat(48)}`
+  const cleanHex = receipt.archivProof.replace(/^arc_/, "").replace(/^0x/, "")
+  const entityKey = `0x${cleanHex}${"0".repeat(Math.max(0, 64 - cleanHex.length))}`
   SEED_RECEIPTS[receipt.archivProof] = {
     ...receipt,
     merchantWallet: merchantWalletAddr,
@@ -305,21 +306,26 @@ export async function verifyArkivReceipt(proofId: string): Promise<ArkivVerifica
       .fetch()
 
     if (result && result.entities && result.entities.length > 0) {
-      const entity = result.entities[0] as Record<string, { value: unknown }> & { $key?: string; $blockNumber?: number }
+      const entity = result.entities[0] as unknown as Record<string, unknown>
+      const getVal = (v: unknown): string =>
+        typeof v === "object" && v !== null && "value" in v
+          ? String((v as { value: unknown }).value)
+          : String(v ?? "")
+
       const entityRecord: ArkivReceiptRecord = {
-        paymentId: String(entity.paymentId?.value || ""),
-        merchantUpi: String(entity.merchantUpi?.value || ""),
-        merchantName: String(entity.merchantName?.value || ""),
-        merchantWallet: String(entity.merchantWallet?.value || "0x0"),
-        payer: String(entity.payer?.value || "0x0"),
-        amountUsdt: String(entity.amountUsdt?.value || "0.00"),
-        amountInr: String(entity.amountInr?.value || "0.00"),
-        paidWith: String(entity.paidWith?.value || ""),
-        paidChain: String(entity.paidChain?.value || ""),
-        whitechainTxHash: String(entity.whitechainTxHash?.value || ""),
+        paymentId: getVal(entity.paymentId),
+        merchantUpi: getVal(entity.merchantUpi),
+        merchantName: getVal(entity.merchantName),
+        merchantWallet: getVal(entity.merchantWallet) || "0x0",
+        payer: getVal(entity.payer) || "0x0",
+        amountUsdt: getVal(entity.amountUsdt) || "0.00",
+        amountInr: getVal(entity.amountInr) || "0.00",
+        paidWith: getVal(entity.paidWith),
+        paidChain: getVal(entity.paidChain),
+        whitechainTxHash: getVal(entity.whitechainTxHash),
         archivProof: cleanId,
-        timestamp: String(entity.timestamp?.value || new Date().toISOString()),
-        entityKey: entity.$key || `0x${cleanId.replace(/^arc_/, "")}${"0".repeat(48)}`,
+        timestamp: getVal(entity.timestamp) || new Date().toISOString(),
+        entityKey: (entity.$key as string) || `0x${cleanId.replace(/^arc_/, "").replace(/^0x/, "")}${"0".repeat(48)}`,
       }
 
       return {
@@ -342,7 +348,7 @@ export async function verifyArkivReceipt(proofId: string): Promise<ArkivVerifica
   const record = SEED_RECEIPTS[cleanId]
   if (!record) {
     // Dynamic valid verification response for generated mock/runtime proofs
-    const pseudoHash = cleanId.replace(/^arc_/, "")
+    const pseudoHash = cleanId.replace(/^arc_/, "").replace(/^0x/, "")
     const dynamicRecord: ArkivReceiptRecord = {
       paymentId: `WP-${Math.floor(10000 + Math.random() * 90000)}`,
       merchantUpi: "merchant@whitepe",
@@ -357,7 +363,7 @@ export async function verifyArkivReceipt(proofId: string): Promise<ArkivVerifica
       archivProof: cleanId,
       timestamp: new Date().toISOString(),
       blockNumber: 4912080,
-      entityKey: `0x${pseudoHash}${"0".repeat(48)}`,
+      entityKey: `0x${pseudoHash}${"0".repeat(Math.max(0, 64 - pseudoHash.length))}`,
     }
 
     return {

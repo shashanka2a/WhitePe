@@ -71,6 +71,17 @@ WhitePe integrates LI.FI as its cross-chain bridging and liquidity aggregation p
 3. **Single Transaction Flow**: The customer signs one transaction on their source chain. LI.FI executes the cross-chain bridge and swap, delivering USDT directly to the merchant on Whitechain.
 4. **Final Settlement**: The Whitechain settlement contract validates the invoice, forwards USDT to the merchant wallet, and emits an event indexed by Arkiv.
 
+### Arkiv Web3 Database Integration
+
+WhitePe uses the official `@arkiv-network/sdk` and `viem` to record, query, and verify cryptographic receipts on Arkiv:
+
+1. **Schema Definition (`whitepe.receipts`)**: Receipts are typed and indexed using Arkiv's native type constructors (`str`, `addr`, `dec`). Key attributes like `paymentId`, `merchantUpi`, and `archivProof` are indexed for sub-second retrieval.
+2. **On-Chain Indexing**: The backend publishes settlement entities to the Arkiv Rabdi testnet (Chain ID 7794095) with a 365-day retention period.
+3. **Verification API & UI**:
+   - `POST /api/arkiv/index`: Stores and indexes payment records.
+   - `GET /api/arkiv/verify/[id]`: Cryptographically verifies receipts against the Arkiv network.
+   - **Interactive Modal**: Both merchants and consumers can click any `arc_0x...` proof badge to inspect the verified on-chain entity, matching Whitechain tx hash, and Rabdi Explorer record.
+
 ---
 
 ## Smart Contract Overview
